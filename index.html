@@ -11,16 +11,18 @@
     .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     label { display: block; font-weight: 600; margin-bottom: 6px; }
-    input { width: 100%; padding: 10px; font-size: 16px; }
+    input { width: 100%; padding: 10px; font-size: 16px; box-sizing: border-box; }
     table { width: 100%; border-collapse: collapse; margin-top: 14px; }
     th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
     th:first-child, td:first-child { text-align: left; }
     th { background: #f6f6f6; }
-    .debit { color:blue; font-size: 20px; margin-top: 8px; }
     .out { font-weight: 700; }
     .yellow { background: #fff59d; }
     .center { text-align: center; }
-    .small { font-size: 13px; color:#666; }
+    .muted { color:#666; font-size: 13px; margin-top: 10px; }
+    .toolbar { display:flex; gap:10px; align-items:center; margin-top: 10px; flex-wrap: wrap; }
+    button { padding: 10px 12px; font-size: 14px; cursor: pointer; border: 1px solid #ddd; border-radius: 10px; background: #fff; }
+    button:hover { background: #f6f6f6; }
   </style>
 </head>
 <body>
@@ -38,11 +40,17 @@
       </div>
     </div>
 
-    <p class="muted">
-      Débito = Contado × COHEF Deb
-      &nbsp;—&nbsp;
-      <span class="out">Débito:</span> <span id="debitoOut" class="out">—</span>
-    </p>
+    <div class="toolbar">
+      <span class="muted">
+        Débito = Contado × COHEF Deb — <span class="out">Débito:</span> <span id="debitoOut" class="out">—</span>
+      </span>
+
+      <button id="clearBtn" type="button" title="Borra lo guardado en este navegador">
+        Limpiar valores guardados
+      </button>
+
+      <span id="saveHint" class="muted"></span>
+    </div>
 
     <table>
       <thead>
@@ -58,23 +66,23 @@
       <tbody>
         <tr>
           <td>1 pago</td>
-          <td class="center"><input id="cohef_1"  type="text" inputmode="decimal" placeholder="1,076"></td>
+          <td class="center"><input id="cohef_1"  type="text" inputmode="decimal" placeholder="1,05"></td>
           <td id="cuota_1">—</td>
           <td id="total_1" class="out">—</td>
           <td id="fact_1" class="yellow out">—</td>
-          <td class="center"><input id="coh_1"    type="text" inputmode="decimal" placeholder="1,081"></td>
+          <td class="center"><input id="coh_1"    type="text" inputmode="decimal" placeholder="1,06"></td>
         </tr>
         <tr>
           <td>3 pagos</td>
-          <td class="center"><input id="cohef_3"  type="text" inputmode="decimal" placeholder="1,11"></td>
+          <td class="center"><input id="cohef_3"  type="text" inputmode="decimal" placeholder="1,07"></td>
           <td id="cuota_3">—</td>
           <td id="total_3" class="out">—</td>
           <td id="fact_3" class="yellow out">—</td>
-          <td class="center"><input id="coh_3"    type="text" inputmode="decimal" placeholder="1,092"></td>
+          <td class="center"><input id="coh_3"    type="text" inputmode="decimal" placeholder="1,08"></td>
         </tr>
         <tr>
           <td>6 pagos</td>
-          <td class="center"><input id="cohef_6"  type="text" inputmode="decimal" placeholder="1,2241"></td>
+          <td class="center"><input id="cohef_6"  type="text" inputmode="decimal" placeholder="1,09"></td>
           <td id="cuota_6">—</td>
           <td id="total_6" class="out">—</td>
           <td id="fact_6" class="yellow out">—</td>
@@ -82,28 +90,65 @@
         </tr>
         <tr>
           <td>9 pagos</td>
-          <td class="center"><input id="cohef_9"  type="text" inputmode="decimal" placeholder="1,52"></td>
+          <td class="center"><input id="cohef_9"  type="text" inputmode="decimal" placeholder="1,2"></td>
           <td id="cuota_9">—</td>
           <td id="total_9" class="out">—</td>
           <td id="fact_9" class="yellow out">—</td>
-          <td class="center"><input id="coh_9"    type="text" inputmode="decimal" placeholder="1,129"></td>
+          <td class="center"><input id="coh_9"    type="text" inputmode="decimal" placeholder="1,3"></td>
         </tr>
         <tr>
           <td>12 pagos</td>
-          <td class="center"><input id="cohef_12" type="text" inputmode="decimal" placeholder="1,718"></td>
+          <td class="center"><input id="cohef_12" type="text" inputmode="decimal" placeholder="1,4"></td>
           <td id="cuota_12">—</td>
           <td id="total_12" class="out">—</td>
           <td id="fact_12" class="yellow out">—</td>
-          <td class="center"><input id="coh_12"   type="text" inputmode="decimal" placeholder="1,146"></td>
+          <td class="center"><input id="coh_12"   type="text" inputmode="decimal" placeholder="1,5"></td>
         </tr>
       </tbody>
     </table>
 
+    <div class="muted" style="margin-top:10px">
+      Regla: Facturar = Contado × Coh. Costo total = (1 pago: Contado × COHEF) / (resto: Facturar × COHEF). Cuota = Total / pagos.
+    </div>
   </div>
 
   <script>
     const fmtARS = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" });
 
+    // ====== Persistencia ======
+    const STORE_KEY = "valorTC_v1";
+    const saveHintEl = document.getElementById("saveHint");
+
+    function saveState() {
+      const data = {};
+      document.querySelectorAll("input").forEach(inp => {
+        if (inp.id) data[inp.id] = inp.value;
+      });
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+
+      // feedback mínimo
+      if (saveHintEl) {
+        saveHintEl.textContent = "Guardado ✓";
+        clearTimeout(window.__saveHintTimer);
+        window.__saveHintTimer = setTimeout(() => saveHintEl.textContent = "", 900);
+      }
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        Object.entries(data).forEach(([id, val]) => {
+          const el = document.getElementById(id);
+          if (el) el.value = val;
+        });
+      } catch (e) {
+        console.warn("Estado guardado inválido, se ignora");
+      }
+    }
+
+    // ====== Utilidades ======
     function n(v) {
       if (v === null || v === undefined) return NaN;
       const s = String(v).trim().replace(/\./g, "").replace(",", ".");
@@ -122,6 +167,7 @@
       if (el) el.textContent = txt;
     }
 
+    // ====== Cálculo ======
     function recalc() {
       const contadoEl = document.getElementById("contado");
       const cohefDebEl = document.getElementById("cohefDeb");
@@ -132,15 +178,13 @@
 
       if (!Number.isFinite(contado) || contado <= 0) {
         safeText("debitoOut", "—");
+        // limpiar outputs de tabla si querés (opcional)
         return;
       }
 
       // Débito
-      if (Number.isFinite(cohefDeb)) {
-        setText("debitoOut", contado * cohefDeb, true);
-      } else {
-        safeText("debitoOut", "—");
-      }
+      if (Number.isFinite(cohefDeb)) setText("debitoOut", contado * cohefDeb, true);
+      else safeText("debitoOut", "—");
 
       const rows = [
         { pagos: 1,  cohefId: "cohef_1",  cohId: "coh_1",  cuotaOut: "cuota_1",  totalOut: "total_1",  factOut: "fact_1" },
@@ -179,10 +223,25 @@
       }
     }
 
+    // ====== Eventos ======
     window.addEventListener("input", (e) => {
-      if (e.target && e.target.tagName === "INPUT") recalc();
+      if (e.target && e.target.tagName === "INPUT") {
+        saveState();
+        recalc();
+      }
     });
 
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      localStorage.removeItem(STORE_KEY);
+      // limpiar inputs
+      document.querySelectorAll("input").forEach(i => i.value = "");
+      recalc();
+      if (saveHintEl) saveHintEl.textContent = "Limpio.";
+      setTimeout(() => { if (saveHintEl) saveHintEl.textContent = ""; }, 900);
+    });
+
+    // ====== Inicio ======
+    loadState();
     recalc();
   </script>
 </body>
