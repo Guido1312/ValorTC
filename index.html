@@ -16,7 +16,7 @@
     th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
     th:first-child, td:first-child { text-align: left; }
     th { background: #f6f6f6; }
-    .muted { color:#666; font-size: 13px; margin-top: 8px; }
+    .debit { color:blue; font-size: 20px; margin-top: 8px; }
     .out { font-weight: 700; }
     .yellow { background: #fff59d; }
     .center { text-align: center; }
@@ -59,49 +59,46 @@
         <tr>
           <td>1 pago</td>
           <td class="center"><input id="cohef_1"  type="text" inputmode="decimal" placeholder="1,076"></td>
-          <td class="center"><input id="coh_1"    type="text" inputmode="decimal" placeholder="1,081"></td>
           <td id="cuota_1">—</td>
           <td id="total_1" class="out">—</td>
           <td id="fact_1" class="yellow out">—</td>
+          <td class="center"><input id="coh_1"    type="text" inputmode="decimal" placeholder="1,081"></td>
         </tr>
         <tr>
           <td>3 pagos</td>
           <td class="center"><input id="cohef_3"  type="text" inputmode="decimal" placeholder="1,11"></td>
-          <td class="center"><input id="coh_3"    type="text" inputmode="decimal" placeholder="1,092"></td>
           <td id="cuota_3">—</td>
           <td id="total_3" class="out">—</td>
           <td id="fact_3" class="yellow out">—</td>
+          <td class="center"><input id="coh_3"    type="text" inputmode="decimal" placeholder="1,092"></td>
         </tr>
         <tr>
           <td>6 pagos</td>
           <td class="center"><input id="cohef_6"  type="text" inputmode="decimal" placeholder="1,2241"></td>
-          <td class="center"><input id="coh_6"    type="text" inputmode="decimal" placeholder="1,1"></td>
           <td id="cuota_6">—</td>
           <td id="total_6" class="out">—</td>
           <td id="fact_6" class="yellow out">—</td>
+          <td class="center"><input id="coh_6"    type="text" inputmode="decimal" placeholder="1,1"></td>
         </tr>
         <tr>
           <td>9 pagos</td>
           <td class="center"><input id="cohef_9"  type="text" inputmode="decimal" placeholder="1,52"></td>
-          <td class="center"><input id="coh_9"    type="text" inputmode="decimal" placeholder="1,129"></td>
           <td id="cuota_9">—</td>
           <td id="total_9" class="out">—</td>
           <td id="fact_9" class="yellow out">—</td>
+          <td class="center"><input id="coh_9"    type="text" inputmode="decimal" placeholder="1,129"></td>
         </tr>
         <tr>
           <td>12 pagos</td>
           <td class="center"><input id="cohef_12" type="text" inputmode="decimal" placeholder="1,718"></td>
-          <td class="center"><input id="coh_12"   type="text" inputmode="decimal" placeholder="1,146"></td>
           <td id="cuota_12">—</td>
           <td id="total_12" class="out">—</td>
           <td id="fact_12" class="yellow out">—</td>
+          <td class="center"><input id="coh_12"   type="text" inputmode="decimal" placeholder="1,146"></td>
         </tr>
       </tbody>
     </table>
 
-    <div class="small" style="margin-top:10px">
-      Reglas: Facturar = Contado × Coh. Costo total = (1 pago: Contado × COHEF) / (resto: Facturar × COHEF). Cuota = Total / pagos.
-    </div>
   </div>
 
   <script>
