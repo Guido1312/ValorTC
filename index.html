@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calculadora</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 24px; max-width: 520px; }
+    h1 { margin: 0 0 12px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; }
+    label { display: block; margin-top: 12px; font-weight: 600; }
+    input, select, button { width: 100%; padding: 10px; margin-top: 6px; font-size: 16px; }
+    button { cursor: pointer; margin-top: 16px; }
+    .result { margin-top: 16px; padding: 12px; background: #f6f6f6; border-radius: 10px; }
+    .error { color: #b00020; font-weight: 600; }
+    small { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Calculadora</h1>
+  <div class="card">
+    <label for="a">Número A</label>
+    <input id="a" type="number" inputmode="decimal" placeholder="Ej: 10" />
+
+    <label for="op">Operación</label>
+    <select id="op">
+      <option value="sum">Sumar (+)</option>
+      <option value="sub">Restar (−)</option>
+      <option value="mul">Multiplicar (×)</option>
+      <option value="div">Dividir (÷)</option>
+    </select>
+
+    <label for="b">Número B</label>
+    <input id="b" type="number" inputmode="decimal" placeholder="Ej: 5" />
+
+    <button id="calc">Calcular</button>
+
+    <div id="out" class="result">
+      <strong>Resultado:</strong> <span id="res">—</span>
+      <div id="err" class="error" style="margin-top:8px;"></div>
+      <small>Tip: podés apretar Enter en un campo para calcular.</small>
+    </div>
+  </div>
+
+  <script>
+    const aEl = document.getElementById("a");
+    const bEl = document.getElementById("b");
+    const opEl = document.getElementById("op");
+    const resEl = document.getElementById("res");
+    const errEl = document.getElementById("err");
+    const btn = document.getElementById("calc");
+
+    function calcular() {
+      errEl.textContent = "";
+      resEl.textContent = "—";
+
+      const a = Number(aEl.value);
+      const b = Number(bEl.value);
+
+      if (aEl.value === "" || bEl.value === "") {
+        errEl.textContent = "Completá ambos números.";
+        return;
+      }
+      if (!Number.isFinite(a) || !Number.isFinite(b)) {
+        errEl.textContent = "Ingresá valores numéricos válidos.";
+        return;
+      }
+
+      let r;
+      switch (opEl.value) {
+        case "sum": r = a + b; break;
+        case "sub": r = a - b; break;
+        case "mul": r = a * b; break;
+        case "div":
+          if (b === 0) { errEl.textContent = "No se puede dividir por 0."; return; }
+          r = a / b;
+          break;
+        default:
+          errEl.textContent = "Operación inválida.";
+          return;
+      }
+
+      // Mostrar con hasta 10 decimales, sin ceros finales
+      resEl.textContent = Number.isInteger(r) ? String(r) : r.toFixed(10).replace(/\.?0+$/, "");
+    }
+
+    btn.addEventListener("click", calcular);
+    [aEl, bEl, opEl].forEach(el => el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") calcular();
+    }));
+  </script>
+</body>
+</html>
