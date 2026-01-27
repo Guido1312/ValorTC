@@ -3,127 +3,190 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Calculadora</title>
+  <title>ValorTC</title>
+  <link rel="icon" href="data:,">
   <style>
-    body { font-family: system-ui, Arial, sans-serif; margin: 24px; max-width: 520px; }
+    body { font-family: system-ui, Arial, sans-serif; margin: 24px; max-width: 920px; }
     h1 { margin: 0 0 12px; }
     .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; }
-    label { display: block; margin-top: 12px; font-weight: 600; }
-    input, select, button { width: 100%; padding: 10px; margin-top: 6px; font-size: 16px; }
-    button { cursor: pointer; margin-top: 16px; }
-    .result { margin-top: 16px; padding: 12px; background: #f6f6f6; border-radius: 10px; }
-    .error { color: #b00020; font-weight: 600; }
-    small { color: #666; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; }
+    input { width: 100%; padding: 10px; font-size: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    th { background: #f6f6f6; }
+    .muted { color:#666; font-size: 13px; margin-top: 8px; }
+    .out { font-weight: 700; }
+    .yellow { background: #fff59d; }
+    .center { text-align: center; }
+    .small { font-size: 13px; color:#666; }
   </style>
 </head>
 <body>
-  <h1>Calculadora</h1>
+  <h1>ValorTC</h1>
+
   <div class="card">
-    <label for="a">Número A</label>
-    <input id="a" type="number" inputmode="decimal" placeholder="Ej: 10" />
+    <div class="grid">
+      <div>
+        <label for="contado">Contado (EFVO)</label>
+        <input id="contado" type="number" inputmode="decimal" placeholder="Ej: 100000" />
+      </div>
+      <div>
+        <label for="cohefDeb">COHEF Deb</label>
+        <input id="cohefDeb" type="text" inputmode="decimal" placeholder="Ej: 1,037" />
+      </div>
+    </div>
 
-    <label for="op">Operación</label>
-    <select id="op">
-      <option value="sum">Sumar (+)</option>
-      <option value="sub">Restar (−)</option>
-      <option value="mul">Multiplicar (×)</option>
-      <option value="div">Dividir (÷)</option>
-    </select>
+    <p class="muted">
+      Débito = Contado × COHEF Deb
+      &nbsp;—&nbsp;
+      <span class="out">Débito:</span> <span id="debitoOut" class="out">—</span>
+    </p>
 
-    <label for="b">Número B</label>
-    <input id="b" type="number" inputmode="decimal" placeholder="Ej: 5" />
+    <table>
+      <thead>
+        <tr>
+          <th>Crédito</th>
+          <th class="center">COHEF</th>
+          <th class="center">Coh</th>
+          <th>Costo x cuota</th>
+          <th>Costo total</th>
+          <th class="yellow">Facturar esto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1 pago</td>
+          <td class="center"><input id="cohef_1"  type="text" inputmode="decimal" placeholder="1,076"></td>
+          <td class="center"><input id="coh_1"    type="text" inputmode="decimal" placeholder="1,081"></td>
+          <td id="cuota_1">—</td>
+          <td id="total_1" class="out">—</td>
+          <td id="fact_1" class="yellow out">—</td>
+        </tr>
+        <tr>
+          <td>3 pagos</td>
+          <td class="center"><input id="cohef_3"  type="text" inputmode="decimal" placeholder="1,11"></td>
+          <td class="center"><input id="coh_3"    type="text" inputmode="decimal" placeholder="1,092"></td>
+          <td id="cuota_3">—</td>
+          <td id="total_3" class="out">—</td>
+          <td id="fact_3" class="yellow out">—</td>
+        </tr>
+        <tr>
+          <td>6 pagos</td>
+          <td class="center"><input id="cohef_6"  type="text" inputmode="decimal" placeholder="1,2241"></td>
+          <td class="center"><input id="coh_6"    type="text" inputmode="decimal" placeholder="1,1"></td>
+          <td id="cuota_6">—</td>
+          <td id="total_6" class="out">—</td>
+          <td id="fact_6" class="yellow out">—</td>
+        </tr>
+        <tr>
+          <td>9 pagos</td>
+          <td class="center"><input id="cohef_9"  type="text" inputmode="decimal" placeholder="1,52"></td>
+          <td class="center"><input id="coh_9"    type="text" inputmode="decimal" placeholder="1,129"></td>
+          <td id="cuota_9">—</td>
+          <td id="total_9" class="out">—</td>
+          <td id="fact_9" class="yellow out">—</td>
+        </tr>
+        <tr>
+          <td>12 pagos</td>
+          <td class="center"><input id="cohef_12" type="text" inputmode="decimal" placeholder="1,718"></td>
+          <td class="center"><input id="coh_12"   type="text" inputmode="decimal" placeholder="1,146"></td>
+          <td id="cuota_12">—</td>
+          <td id="total_12" class="out">—</td>
+          <td id="fact_12" class="yellow out">—</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <button id="calc">Calcular</button>
-
-    <div id="out" class="result">
-      <strong>Resultado:</strong> <span id="res">—</span>
-      <div id="err" class="error" style="margin-top:8px;"></div>
-      <small>Tip: podés apretar Enter en un campo para calcular.</small>
+    <div class="small" style="margin-top:10px">
+      Reglas: Facturar = Contado × Coh. Costo total = (1 pago: Contado × COHEF) / (resto: Facturar × COHEF). Cuota = Total / pagos.
     </div>
   </div>
 
-<script>
-  const fmtARS = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" });
+  <script>
+    const fmtARS = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" });
 
-  function n(v) {
-    // soporta coma o punto
-    if (v === null || v === undefined) return NaN;
-    const s = String(v).trim().replace(/\./g, "").replace(",", ".");
-    const x = Number(s);
-    return Number.isFinite(x) ? x : NaN;
-  }
-
-  function setText(id, value, isMoney = true) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = isMoney ? fmtARS.format(value) : String(value);
-  }
-
-  function recalc() {
-    const contado = n(document.getElementById("contado").value);
-    const cohefDeb = n(document.getElementById("cohefDeb").value);
-
-    if (!Number.isFinite(contado) || contado <= 0) return;
-
-    // Debito
-    if (Number.isFinite(cohefDeb)) {
-      const debito = contado * cohefDeb;
-      setText("debitoOut", debito, true);
-    } else {
-      document.getElementById("debitoOut").textContent = "—";
+    function n(v) {
+      if (v === null || v === undefined) return NaN;
+      const s = String(v).trim().replace(/\./g, "").replace(",", ".");
+      const x = Number(s);
+      return Number.isFinite(x) ? x : NaN;
     }
 
-    // Filas (1,3,6,9,12)
-    const rows = [
-      { pagos: 1, cohefId: "cohef_1", cohId: "coh_1", cuotaOut: "cuota_1", totalOut: "total_1", factOut: "fact_1" },
-      { pagos: 3, cohefId: "cohef_3", cohId: "coh_3", cuotaOut: "cuota_3", totalOut: "total_3", factOut: "fact_3" },
-      { pagos: 6, cohefId: "cohef_6", cohId: "coh_6", cuotaOut: "cuota_6", totalOut: "total_6", factOut: "fact_6" },
-      { pagos: 9, cohefId: "cohef_9", cohId: "coh_9", cuotaOut: "cuota_9", totalOut: "total_9", factOut: "fact_9" },
-      { pagos: 12, cohefId: "cohef_12", cohId: "coh_12", cuotaOut: "cuota_12", totalOut: "total_12", factOut: "fact_12" },
-    ];
+    function setText(id, value, isMoney = true) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = isMoney ? fmtARS.format(value) : String(value);
+    }
 
-    for (const r of rows) {
-      const cohef = n(document.getElementById(r.cohefId).value);
-      const coh = n(document.getElementById(r.cohId).value);
+    function safeText(id, txt) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = txt;
+    }
 
-      // Facturar
-      let fact = NaN;
-      if (Number.isFinite(coh)) fact = contado * coh;
+    function recalc() {
+      const contadoEl = document.getElementById("contado");
+      const cohefDebEl = document.getElementById("cohefDeb");
+      if (!contadoEl || !cohefDebEl) return;
 
-      if (Number.isFinite(fact)) setText(r.factOut, fact, true);
-      else document.getElementById(r.factOut).textContent = "—";
+      const contado = n(contadoEl.value);
+      const cohefDeb = n(cohefDebEl.value);
 
-      // Costo total (regla especial para 1 pago como tu planilla)
-      let total = NaN;
-      if (Number.isFinite(cohef)) {
-        if (r.pagos === 1) {
-          total = contado * cohef;
-        } else if (Number.isFinite(fact)) {
-          total = fact * cohef;
+      if (!Number.isFinite(contado) || contado <= 0) {
+        safeText("debitoOut", "—");
+        return;
+      }
+
+      // Débito
+      if (Number.isFinite(cohefDeb)) {
+        setText("debitoOut", contado * cohefDeb, true);
+      } else {
+        safeText("debitoOut", "—");
+      }
+
+      const rows = [
+        { pagos: 1,  cohefId: "cohef_1",  cohId: "coh_1",  cuotaOut: "cuota_1",  totalOut: "total_1",  factOut: "fact_1" },
+        { pagos: 3,  cohefId: "cohef_3",  cohId: "coh_3",  cuotaOut: "cuota_3",  totalOut: "total_3",  factOut: "fact_3" },
+        { pagos: 6,  cohefId: "cohef_6",  cohId: "coh_6",  cuotaOut: "cuota_6",  totalOut: "total_6",  factOut: "fact_6" },
+        { pagos: 9,  cohefId: "cohef_9",  cohId: "coh_9",  cuotaOut: "cuota_9",  totalOut: "total_9",  factOut: "fact_9" },
+        { pagos: 12, cohefId: "cohef_12", cohId: "coh_12", cuotaOut: "cuota_12", totalOut: "total_12", factOut: "fact_12" },
+      ];
+
+      for (const r of rows) {
+        const cohefEl = document.getElementById(r.cohefId);
+        const cohEl = document.getElementById(r.cohId);
+
+        const cohef = cohefEl ? n(cohefEl.value) : NaN;
+        const coh = cohEl ? n(cohEl.value) : NaN;
+
+        // Facturar
+        const fact = Number.isFinite(coh) ? (contado * coh) : NaN;
+        if (Number.isFinite(fact)) setText(r.factOut, fact, true);
+        else safeText(r.factOut, "—");
+
+        // Total
+        let total = NaN;
+        if (Number.isFinite(cohef)) {
+          if (r.pagos === 1) total = contado * cohef;
+          else if (Number.isFinite(fact)) total = fact * cohef;
+        }
+
+        if (Number.isFinite(total)) {
+          setText(r.totalOut, total, true);
+          setText(r.cuotaOut, total / r.pagos, true);
+        } else {
+          safeText(r.totalOut, "—");
+          safeText(r.cuotaOut, "—");
         }
       }
-
-      if (Number.isFinite(total)) {
-        setText(r.totalOut, total, true);
-        setText(r.cuotaOut, total / r.pagos, true);
-      } else {
-        document.getElementById(r.totalOut).textContent = "—";
-        document.getElementById(r.cuotaOut).textContent = "—";
-      }
     }
-  }
 
-  // recalcular cuando cambie cualquier input
-  window.addEventListener("input", (e) => {
-    if (e.target && e.target.tagName === "INPUT") recalc();
-  });
+    window.addEventListener("input", (e) => {
+      if (e.target && e.target.tagName === "INPUT") recalc();
+    });
 
-  // primer cálculo
-  recalc();
-</script>
+    recalc();
+  </script>
 </body>
 </html>
-
-
-
-
