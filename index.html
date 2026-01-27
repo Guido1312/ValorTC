@@ -1,3 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calculadora</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 24px; max-width: 520px; }
+    h1 { margin: 0 0 12px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; }
+    label { display: block; margin-top: 12px; font-weight: 600; }
+    input, select, button { width: 100%; padding: 10px; margin-top: 6px; font-size: 16px; }
+    button { cursor: pointer; margin-top: 16px; }
+    .result { margin-top: 16px; padding: 12px; background: #f6f6f6; border-radius: 10px; }
+    .error { color: #b00020; font-weight: 600; }
+    small { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Calculadora</h1>
+  <div class="card">
+    <label for="a">Número A</label>
+    <input id="a" type="number" inputmode="decimal" placeholder="Ej: 10" />
+
+    <label for="op">Operación</label>
+    <select id="op">
+      <option value="sum">Sumar (+)</option>
+      <option value="sub">Restar (−)</option>
+      <option value="mul">Multiplicar (×)</option>
+      <option value="div">Dividir (÷)</option>
+    </select>
+
+    <label for="b">Número B</label>
+    <input id="b" type="number" inputmode="decimal" placeholder="Ej: 5" />
+
+    <button id="calc">Calcular</button>
+
+    <div id="out" class="result">
+      <strong>Resultado:</strong> <span id="res">—</span>
+      <div id="err" class="error" style="margin-top:8px;"></div>
+      <small>Tip: podés apretar Enter en un campo para calcular.</small>
+    </div>
+  </div>
+
 <script>
   const fmtARS = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" });
 
@@ -77,3 +121,9 @@
   // primer cálculo
   recalc();
 </script>
+</body>
+</html>
+
+
+
+
