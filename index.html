@@ -1,93 +1,79 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Calculadora</title>
-  <style>
-    body { font-family: system-ui, Arial, sans-serif; margin: 24px; max-width: 520px; }
-    h1 { margin: 0 0 12px; }
-    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; }
-    label { display: block; margin-top: 12px; font-weight: 600; }
-    input, select, button { width: 100%; padding: 10px; margin-top: 6px; font-size: 16px; }
-    button { cursor: pointer; margin-top: 16px; }
-    .result { margin-top: 16px; padding: 12px; background: #f6f6f6; border-radius: 10px; }
-    .error { color: #b00020; font-weight: 600; }
-    small { color: #666; }
-  </style>
-</head>
-<body>
-  <h1>Calculadora</h1>
-  <div class="card">
-    <label for="a">Número A</label>
-    <input id="a" type="number" inputmode="decimal" placeholder="Ej: 10" />
+<script>
+  const fmtARS = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" });
 
-    <label for="op">Operación</label>
-    <select id="op">
-      <option value="sum">Sumar (+)</option>
-      <option value="sub">Restar (−)</option>
-      <option value="mul">Multiplicar (×)</option>
-      <option value="div">Dividir (÷)</option>
-    </select>
+  function n(v) {
+    // soporta coma o punto
+    if (v === null || v === undefined) return NaN;
+    const s = String(v).trim().replace(/\./g, "").replace(",", ".");
+    const x = Number(s);
+    return Number.isFinite(x) ? x : NaN;
+  }
 
-    <label for="b">Número B</label>
-    <input id="b" type="number" inputmode="decimal" placeholder="Ej: 5" />
+  function setText(id, value, isMoney = true) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = isMoney ? fmtARS.format(value) : String(value);
+  }
 
-    <button id="calc">Calcular</button>
+  function recalc() {
+    const contado = n(document.getElementById("contado").value);
+    const cohefDeb = n(document.getElementById("cohefDeb").value);
 
-    <div id="out" class="result">
-      <strong>Resultado:</strong> <span id="res">—</span>
-      <div id="err" class="error" style="margin-top:8px;"></div>
-      <small>Tip: podés apretar Enter en un campo para calcular.</small>
-    </div>
-  </div>
+    if (!Number.isFinite(contado) || contado <= 0) return;
 
-  <script>
-    const aEl = document.getElementById("a");
-    const bEl = document.getElementById("b");
-    const opEl = document.getElementById("op");
-    const resEl = document.getElementById("res");
-    const errEl = document.getElementById("err");
-    const btn = document.getElementById("calc");
-
-    function calcular() {
-      errEl.textContent = "";
-      resEl.textContent = "—";
-
-      const a = Number(aEl.value);
-      const b = Number(bEl.value);
-
-      if (aEl.value === "" || bEl.value === "") {
-        errEl.textContent = "Completá ambos números.";
-        return;
-      }
-      if (!Number.isFinite(a) || !Number.isFinite(b)) {
-        errEl.textContent = "Ingresá valores numéricos válidos.";
-        return;
-      }
-
-      let r;
-      switch (opEl.value) {
-        case "sum": r = a + b; break;
-        case "sub": r = a - b; break;
-        case "mul": r = a * b; break;
-        case "div":
-          if (b === 0) { errEl.textContent = "No se puede dividir por 0."; return; }
-          r = a / b;
-          break;
-        default:
-          errEl.textContent = "Operación inválida.";
-          return;
-      }
-
-      // Mostrar con hasta 10 decimales, sin ceros finales
-      resEl.textContent = Number.isInteger(r) ? String(r) : r.toFixed(10).replace(/\.?0+$/, "");
+    // Debito
+    if (Number.isFinite(cohefDeb)) {
+      const debito = contado * cohefDeb;
+      setText("debitoOut", debito, true);
+    } else {
+      document.getElementById("debitoOut").textContent = "—";
     }
 
-    btn.addEventListener("click", calcular);
-    [aEl, bEl, opEl].forEach(el => el.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") calcular();
-    }));
-  </script>
-</body>
-</html>
+    // Filas (1,3,6,9,12)
+    const rows = [
+      { pagos: 1, cohefId: "cohef_1", cohId: "coh_1", cuotaOut: "cuota_1", totalOut: "total_1", factOut: "fact_1" },
+      { pagos: 3, cohefId: "cohef_3", cohId: "coh_3", cuotaOut: "cuota_3", totalOut: "total_3", factOut: "fact_3" },
+      { pagos: 6, cohefId: "cohef_6", cohId: "coh_6", cuotaOut: "cuota_6", totalOut: "total_6", factOut: "fact_6" },
+      { pagos: 9, cohefId: "cohef_9", cohId: "coh_9", cuotaOut: "cuota_9", totalOut: "total_9", factOut: "fact_9" },
+      { pagos: 12, cohefId: "cohef_12", cohId: "coh_12", cuotaOut: "cuota_12", totalOut: "total_12", factOut: "fact_12" },
+    ];
+
+    for (const r of rows) {
+      const cohef = n(document.getElementById(r.cohefId).value);
+      const coh = n(document.getElementById(r.cohId).value);
+
+      // Facturar
+      let fact = NaN;
+      if (Number.isFinite(coh)) fact = contado * coh;
+
+      if (Number.isFinite(fact)) setText(r.factOut, fact, true);
+      else document.getElementById(r.factOut).textContent = "—";
+
+      // Costo total (regla especial para 1 pago como tu planilla)
+      let total = NaN;
+      if (Number.isFinite(cohef)) {
+        if (r.pagos === 1) {
+          total = contado * cohef;
+        } else if (Number.isFinite(fact)) {
+          total = fact * cohef;
+        }
+      }
+
+      if (Number.isFinite(total)) {
+        setText(r.totalOut, total, true);
+        setText(r.cuotaOut, total / r.pagos, true);
+      } else {
+        document.getElementById(r.totalOut).textContent = "—";
+        document.getElementById(r.cuotaOut).textContent = "—";
+      }
+    }
+  }
+
+  // recalcular cuando cambie cualquier input
+  window.addEventListener("input", (e) => {
+    if (e.target && e.target.tagName === "INPUT") recalc();
+  });
+
+  // primer cálculo
+  recalc();
+</script>
