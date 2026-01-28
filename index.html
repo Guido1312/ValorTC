@@ -21,7 +21,7 @@
     .center { text-align: center; }
     .debit { color:blue; font-size: 20px; margin-top: 10px; }
     .toolbar { display:flex; gap:10px; align-items:center; margin-top: 10px; flex-wrap: wrap; }
-    button { padding: 10px 12px; font-size: 14px; cursor: pointer; border: 1px solid #ddd; border-radius: 10px; background: #f77745;  }
+    button { padding: 10px 12px; font-size: 14px; color: white; font-weight: bold; cursor: pointer; border: 1px solid #ddd; border-radius: 10px; background: #f77745;  }
     button:hover {box-shadow:0 8px 16px 0 rgba(0,0,0,0.6)}
     .coef-input { min-width: 110px; }
     /* responsivo */
@@ -167,7 +167,11 @@
     // number
     function n(v) {
       if (v === null || v === undefined) return NaN;
-      const s = String(v).trim().replace(/\./g, "").replace(",", ".");
+      const raw = String(v).trim();
+      if (raw === "") return NaN;
+
+      // quitar puntos: 100.000,50 -> 100000,50
+      const s = raw.replace(/\./g, "").replace(",", ".");
       const x = Number(s);
       return Number.isFinite(x) ? x : NaN;
     }
@@ -213,19 +217,26 @@
         const cohefEl = document.getElementById(r.cohefId);
         const cohEl = document.getElementById(r.cohId);
 
-        const cohef = cohefEl ? n(cohefEl.value) : NaN;
-        const coh = cohEl ? n(cohEl.value) : NaN;
+        const cohefRaw = cohefEl ? cohefEl.value : "";
+        const cohRaw = cohEl ? cohEl.value : "";
 
-        // Facturar
+        const cohef = n(cohefRaw);
+        const coh = n(cohRaw);
+
+        // ---- FACTURAR ----
         const fact = Number.isFinite(coh) ? (contado * coh) : NaN;
         if (Number.isFinite(fact)) setText(r.factOut, fact, true);
         else safeText(r.factOut, "—");
 
-        // Total
+        // ---- TOTAL y CUOTA ----
         let total = NaN;
-        if (Number.isFinite(cohef)) {
-          if (r.pagos === 1) total = contado * cohef;
-          else if (Number.isFinite(fact)) total = fact * cohef;
+
+        if (r.pagos === 1) {
+          // 1 pago: Total depende de contado y COHEF
+          if (Number.isFinite(cohef)) total = contado * cohef;
+        } else {
+          // resto: Total depende de Facturar y COHEF
+          if (Number.isFinite(fact) && Number.isFinite(cohef)) total = fact * cohef;
         }
 
         if (Number.isFinite(total)) {
