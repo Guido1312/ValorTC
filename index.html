@@ -62,10 +62,6 @@
       </span>
 
       <span id="saveHint" class="muted"></span>
-      <label style="display:flex; align-items:center; gap:8px; font-weight:600; margin-top:10px;">
-      <input id="calcMiercoles" type="checkbox" style="width:auto;" />
-      Cálculo miércoles
-      </label>
     </div>
 
   <div class="tableWrap">
@@ -193,16 +189,21 @@
 
     // calcular
     function recalc() {
-      const contado = n(document.getElementById("contado").value);
-      const cohefDeb = n(document.getElementById("cohefDeb").value);
-      const calcMiercoles = document.getElementById("calcMiercoles")?.checked;
+      const contadoEl = document.getElementById("contado");
+      const cohefDebEl = document.getElementById("cohefDeb");
+      if (!contadoEl || !cohefDebEl) return;
+
+      const contado = n(contadoEl.value);
+      const cohefDeb = n(cohefDebEl.value);
 
       if (!Number.isFinite(contado) || contado <= 0) {
         safeText("debitoOut", "—");
-      } else {
-        if (Number.isFinite(cohefDeb)) setText("debitoOut", contado * cohefDeb, true);
-        else safeText("debitoOut", "—");
+        return;
       }
+
+      // Débito
+      if (Number.isFinite(cohefDeb)) setText("debitoOut", contado * cohefDeb, true);
+      else safeText("debitoOut", "—");
 
       const rows = [
         { pagos: 1,  cohefId: "cohef_1",  cohId: "coh_1",  cuotaOut: "cuota_1",  totalOut: "total_1",  factOut: "fact_1" },
@@ -213,26 +214,29 @@
       ];
 
       for (const r of rows) {
-        const cohef = n(document.getElementById(r.cohefId).value); // Cohef. Cli.
-        const coh = n(document.getElementById(r.cohId).value);     // Cohef. Keto
+        const cohefEl = document.getElementById(r.cohefId);
+        const cohEl = document.getElementById(r.cohId);
 
-        // FACTURAR: siempre igual
-        const fact = (Number.isFinite(contado) && Number.isFinite(coh)) ? (contado * coh) : NaN;
+        const cohefRaw = cohefEl ? cohefEl.value : "";
+        const cohRaw = cohEl ? cohEl.value : "";
+
+        const cohef = n(cohefRaw);
+        const coh = n(cohRaw);
+
+        // ---- FACTURAR ----
+        const fact = Number.isFinite(coh) ? (contado * coh) : NaN;
         if (Number.isFinite(fact)) setText(r.factOut, fact, true);
         else safeText(r.factOut, "—");
 
+        // ---- TOTAL y CUOTA ----
         let total = NaN;
 
-        if (Number.isFinite(contado)) {
-          if (r.pagos === 1) {
-            total = calcMiercoles
-              ? contado
-              : (Number.isFinite(cohef) ? contado * cohef : NaN);
-          } else {
-            total = calcMiercoles
-              ? fact
-              : ((Number.isFinite(fact) && Number.isFinite(cohef)) ? fact * cohef : NaN);
-          }
+        if (r.pagos === 1) {
+          // 1 pago: Total depende de contado y COHEF
+          if (Number.isFinite(cohef)) total = contado * cohef;
+        } else {
+          // resto: Total depende de Facturar y COHEF
+          if (Number.isFinite(fact) && Number.isFinite(cohef)) total = fact * cohef;
         }
 
         if (Number.isFinite(total)) {
@@ -244,6 +248,7 @@
         }
       }
     }
+
     // eventos
     window.addEventListener("input", (e) => {
       if (e.target && e.target.tagName === "INPUT") {
